@@ -1,18 +1,20 @@
 package com.example;
 
+import java.awt.BorderLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
-
 import com.github.sarxos.webcam.WebcamResolution;
 
-public class LiveWebcamViewer {
+public class LiveWebcamGUI {
 
     public static void main(String[] args) {
         // Get the first available webcam
@@ -20,22 +22,45 @@ public class LiveWebcamViewer {
         // Set the webcam resolution to 640x480
         webcam.setViewSize(WebcamResolution.VGA.getSize());
         // Create a WebcamPanel for the webcam
-        WebcamPanel panel = new WebcamPanel(webcam);
+        WebcamPanel webcamPanel = new WebcamPanel(webcam);
         // Set the panel size to the webcam resolution
-        panel.setPreferredSize(webcam.getViewSize());
-        // Add the panel to a frame
-        JFrame frame = new JFrame("Webcam Viewer");
-        // frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        webcamPanel.setPreferredSize(webcam.getViewSize());
 
         // Create a new panel to display the transformed image
         JPanel transformedPanel = new JPanel();
         transformedPanel.setPreferredSize(webcam.getViewSize());
-        // Add the transformed panel to the frame
-        frame.add(transformedPanel);
+
+        // Create a panel to hold the two image panels and the buttons
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        // Add the webcam panel and the transformed panel to the main panel
+        mainPanel.add(webcamPanel, BorderLayout.WEST);
+        mainPanel.add(transformedPanel, BorderLayout.EAST);
+
+        // Create a panel to hold the buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
+        // Create four buttons
+        JButton button1 = new JButton("Button 1");
+        JButton button2 = new JButton("Button 2");
+        JButton button3 = new JButton("Button 3");
+        JButton button4 = new JButton("Button 4");
+        // Add the buttons to the button panel
+        buttonPanel.add(button1);
+        buttonPanel.add(button2);
+        buttonPanel.add(button3);
+        buttonPanel.add(button4);
+        // Add the button panel to the main panel
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Create a frame to hold the main panel
+        JFrame frame = new JFrame("Webcam Viewer");
+        // Add the main panel to the frame
+        frame.add(mainPanel);
+        // Set the size of the frame to fit the panels
         frame.pack();
+        // Show the frame
+        frame.setVisible(true);
+        // Set the default close operation of the frame to exit the application
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Continuously update the webcam panel
         while (true) {
@@ -71,8 +96,6 @@ public class LiveWebcamViewer {
                 }
             }
 
-            // #######################
-
             // Create a new BufferedImage using the modified pixel values
             BufferedImage modifiedImage = new BufferedImage(webcam.getViewSize().width,
                     webcam.getViewSize().height,
@@ -83,7 +106,7 @@ public class LiveWebcamViewer {
                     webcam.getViewSize().width);
             // Set the modified image as the image displayed in the WebcamPanel
 
-            // Get the Graphics object for the panel
+            // Get the Graphics object for the transformed panel
             Graphics g = transformedPanel.getGraphics();
             // Draw the BufferedImage on the panel
             g.drawImage(modifiedImage, 0, 0, null);
