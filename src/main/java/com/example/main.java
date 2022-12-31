@@ -14,7 +14,7 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
 
-public class LiveWebcamGUI {
+public class main {
 
     static int buttonActive = 0;
     public static int[] filteredPixels;
