@@ -38,7 +38,8 @@ public class main {
         mainPanel.add(webcamPanel, BorderLayout.WEST);
 
         // Create a panel to hold the buttons
-        JPanel buttonPanel = new JPanel(new GridLayout(7, 1));
+        JPanel buttonPanel = new JPanel(new GridLayout(8, 1));
+
         // Create four buttons
         JButton button1 = new JButton("red");
         JButton button2 = new JButton("Grayscale");
@@ -47,6 +48,7 @@ public class main {
         JButton button5 = new JButton("cartoon");
         JButton button6 = new JButton("sketch");
         JButton button7 = new JButton("removeBackground");
+        JButton button8 = new JButton("blur");
         // Add the buttons to the button panel
         buttonPanel.add(button1);
         buttonPanel.add(button2);
@@ -55,10 +57,10 @@ public class main {
         buttonPanel.add(button5);
         buttonPanel.add(button6);
         buttonPanel.add(button7);
+        buttonPanel.add(button8);
         // Add the button panel to the main panel
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
         mainPanel.add(transformedPanel, BorderLayout.EAST);
-
 
         // Create a frame to hold the main panel
         JFrame frame = new JFrame("Webcam Viewer");
@@ -151,7 +153,15 @@ public class main {
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     // Code to be executed when the button is clicked
-                    buttonActive = 6;
+                    buttonActive = 7;
+                }
+            });
+
+            button8.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    // Code to be executed when the button is clicked
+                    buttonActive = 8;
                 }
             });
 
@@ -162,7 +172,8 @@ public class main {
                 case 2:
                     grayScale(pixels);
 
-                    //edgeDetection(pixels, webcam.getViewSize().width, webcam.getViewSize().height);
+                    // edgeDetection(pixels, webcam.getViewSize().width,
+                    // webcam.getViewSize().height);
                     break;
                 case 3:
                     invertColors(pixels);
@@ -179,6 +190,9 @@ public class main {
                     break;
                 case 7:
                     removeBackground(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
+                    break;
+                case 8:
+                    blur(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
                     break;
 
                 default:
@@ -298,7 +312,7 @@ public class main {
 
         BufferedImage imgOld = img;
         boolean inObject = false;
-        //from left
+        // from left
         for (int y = 0; y < height; y++) {
             setBackgroundTolerance(pixels[y * width]);
             for (int x = 0; x < width; x++) {
@@ -317,7 +331,8 @@ public class main {
                 }
 
                 // set new RGB
-                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
                 pixels[x + (y * width)] = newIntColor;
             }
             inObject = false;
@@ -342,21 +357,22 @@ public class main {
                     }
                 }
                 if (Math.abs(Method.getMid(currentColor) - Method.getMid(futureColor)) < 3) {
-                    //System.out.print(getMid(currentColor)+"vs."+getMid(futureColor));
-                    //System.out.println(Math.abs(getMid(currentColor)-getMid(futureColor)));
-                    //currentColor = Method.setColor(new Color(0, 255, 255, 0));
+                    // System.out.print(getMid(currentColor)+"vs."+getMid(futureColor));
+                    // System.out.println(Math.abs(getMid(currentColor)-getMid(futureColor)));
+                    // currentColor = Method.setColor(new Color(0, 255, 255, 0));
                 } else {
-                    //currentColor = Method.getPixelColor(imgOld, x, y);
+                    // currentColor = Method.getPixelColor(imgOld, x, y);
                     currentColor = Method.setColor(new Color(255, 255, 255, 0));
                 }
                 // set new RGB
-                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
                 pixels[x + (y * width)] = newIntColor;
             }
             inObject = false;
         }
 
-        //recolor remaining pixels
+        // recolor remaining pixels
         for (int y = 0; y < height; y++) {
             setBackgroundTolerance(pixels[y * width]);
             for (int x = 0; x < width; x++) {
@@ -364,15 +380,17 @@ public class main {
                 if ((x <= width / 40 && !Method.isWhite(currentColor)) || (y <= 20 && !Method.isWhite(currentColor))) {
                     while (x < width - 1) {
                         currentColor = Method.setColor(new Color(255, 255, 255, 0));
-                        int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                        int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                                | (currentColor.getGreen() << 8) | currentColor.getBlue();
                         pixels[x + (y * width)] = newIntColor;
                         x++;
                     }
                 } else if (!Method.isWhite(currentColor)) {
                     currentColor = Method.getPixelColor(imgOld, x, y);
-                    //currentColor = Method.setColor(new Color(255, 0, 0, 0));
+                    // currentColor = Method.setColor(new Color(255, 0, 0, 0));
 
-                    int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                    int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                            | (currentColor.getGreen() << 8) | currentColor.getBlue();
                     pixels[x + (y * width)] = newIntColor;
                 }
 
@@ -386,7 +404,7 @@ public class main {
         int green = (pixel >> 8) & 0xff;
         int blue = (pixel) & 0xff;
         sum = (red + green + green + blue) / 10;
-        //System.out.println(sum);
+        // System.out.println(sum);
         Method.setTolerance(sum);
     }
 
@@ -397,11 +415,13 @@ public class main {
             if (y % pixelSize == 0) {
                 for (int x = 0; x < width; x++) {
                     if (x % pixelSize == 0) {
-                        currentColor = Method.getPixelColor(img, x + (pixelSize / 2) >= width ? width - 1 : x + (pixelSize / 2), y + (pixelSize / 2) >= height ? height - 1 : y + (pixelSize / 2));
+                        currentColor = Method.getPixelColor(img,
+                                x + (pixelSize / 2) >= width ? width - 1 : x + (pixelSize / 2),
+                                y + (pixelSize / 2) >= height ? height - 1 : y + (pixelSize / 2));
                     }
 
-
-                    int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                    int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                            | (currentColor.getGreen() << 8) | currentColor.getBlue();
                     pixels[x + (y * width)] = newIntColor;
                 }
             } else {
@@ -411,60 +431,108 @@ public class main {
             }
         }
     }
+
     public static void cartoon(int[] pixels, BufferedImage img, int width, int height) {
         int tolerance = 15;
-        for (int y = 1; y < height-1; y++) {
+        for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 Color currentColor = Method.getPixelColor(img, x, y);
                 Color lastColor = Method.getPixelColor(img, x - 1, y);
                 Color futureColor = Method.getPixelColor(img, x + 1, y);
-                Color lastColor2 = Method.getPixelColor(img, x, y-1);
-                Color futureColor2 = Method.getPixelColor(img, x, y+1);
-
+                Color lastColor2 = Method.getPixelColor(img, x, y - 1);
+                Color futureColor2 = Method.getPixelColor(img, x, y + 1);
 
                 if (Math.abs(Method.asGray(lastColor) - Method.asGray(futureColor)) > tolerance) {
-                    //currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2, (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() + futureColor.getBlue()) / 2);
-                    currentColor=Color.black;
+                    // currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2,
+                    // (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() +
+                    // futureColor.getBlue()) / 2);
+                    currentColor = Color.black;
                 }
                 if (Math.abs(Method.asGray(lastColor2) - Method.asGray(futureColor2)) > tolerance) {
-                    //currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2, (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() + futureColor.getBlue()) / 2);
-                    currentColor=Color.black;
+                    // currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2,
+                    // (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() +
+                    // futureColor.getBlue()) / 2);
+                    currentColor = Color.black;
                 }
 
-                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
                 pixels[x + (y * width)] = newIntColor;
             }
 
         }
     }
-    public static void sketch (int[] pixels, BufferedImage img, int width, int height) {
+
+    public static void sketch(int[] pixels, BufferedImage img, int width, int height) {
         int tolerance = 10;
-        for (int y = 1; y < height-1; y++) {
+        for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 Color currentColor = Method.getPixelColor(img, x, y);
                 Color lastColor = Method.getPixelColor(img, x - 1, y);
                 Color futureColor = Method.getPixelColor(img, x + 1, y);
-                Color lastColor2 = Method.getPixelColor(img, x, y-1);
-                Color futureColor2 = Method.getPixelColor(img, x, y+1);
-
+                Color lastColor2 = Method.getPixelColor(img, x, y - 1);
+                Color futureColor2 = Method.getPixelColor(img, x, y + 1);
 
                 if (Math.abs(Method.asGray(lastColor) - Method.asGray(futureColor)) > tolerance) {
-                    //currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2, (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() + futureColor.getBlue()) / 2);
-                    currentColor=Color.black;
-                }else{
-                    currentColor=Color.white;
+                    // currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2,
+                    // (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() +
+                    // futureColor.getBlue()) / 2);
+                    currentColor = Color.black;
+                } else {
+                    currentColor = Color.white;
                 }
                 if (Math.abs(Method.asGray(lastColor2) - Method.asGray(futureColor2)) > tolerance) {
-                    //currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2, (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() + futureColor.getBlue()) / 2);
-                    currentColor=Color.black;
-                }else{
-                    currentColor=Color.white;
+                    // currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2,
+                    // (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() +
+                    // futureColor.getBlue()) / 2);
+                    currentColor = Color.black;
+                } else {
+                    currentColor = Color.white;
                 }
 
-                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16) | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
                 pixels[x + (y * width)] = newIntColor;
             }
 
+        }
+    }
+
+    public static void blur(int[] pixels, BufferedImage img, int width, int height) {
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+
+                int radius = 5;
+                int left = x > radius ? x - radius : x;
+                int right = x < width - radius - 1 ? x + radius : x;
+                int top = y > radius ? y - radius : y;
+                int bottom = y < height - radius - 1 ? y + radius : y;
+
+                // average
+                int sumR = 0;
+                int sumG = 0;
+                int sumB = 0;
+                int count = 0;
+                for (int i = left; i <= right; i++) {
+                    for (int j = top; j <= bottom; j++) {
+                        int pixel = img.getRGB(i, j);
+                        int r = (pixel >> 16) & 0xff;
+                        int g = (pixel >> 8) & 0xff;
+                        int b = pixel & 0xff;
+                        sumR += r;
+                        sumG += g;
+                        sumB += b;
+                        count++;
+                    }
+                }
+                int avgR = sumR / count;
+                int avgG = sumG / count;
+                int avgB = sumB / count;
+
+                int newPixel = (avgR << 16) | (avgG << 8) | avgB;
+                pixels[x + (y * width)] = newPixel;
+            }
         }
     }
 }
