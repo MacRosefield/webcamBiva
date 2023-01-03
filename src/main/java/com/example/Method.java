@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 class Method {
 
     static int tolerance=100;
+    static int tolerance2=100;
 
     static int getMid(Color color) {
         int value = (int) (((color.getRed() + color.getGreen() + color.getBlue()) / 3) + 0.5);
@@ -40,7 +41,7 @@ class Method {
     }
 
     static boolean isWhite(Color currentColor) {
-        if ((tolerance <= currentColor.getRed() && currentColor.getRed() <= 260) && (tolerance <= currentColor.getGreen() && currentColor.getGreen() <= 260) && (tolerance <= currentColor.getBlue() && currentColor.getBlue() <= 260)) {
+        if ((tolerance <= currentColor.getRed() && currentColor.getRed() <= tolerance2) && (tolerance <= currentColor.getGreen() && currentColor.getGreen() <= tolerance2) && (tolerance <= currentColor.getBlue() && currentColor.getBlue() <= tolerance2)) {
             return true;
         } else {
             return false;
@@ -57,8 +58,9 @@ class Method {
         }
         return true;
     }
-    static void setTolerance(int newTolerance){
+    static void setTolerance(int newTolerance,int newTolerance2){
         tolerance=newTolerance;
+        tolerance2=newTolerance2;
     }
 
     static int asGray(Color c){
