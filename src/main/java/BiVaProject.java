@@ -3,6 +3,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,12 +33,12 @@ public class BiVaProject {
         // Create a panel to hold the two image panels and the buttons
         JPanel mainPanel = new JPanel(new BorderLayout());
         // Add the webcam panel and the transformed panel to the main panel
-        mainPanel.add(webcamPanel, BorderLayout.WEST);
+        mainPanel.add(webcamPanel, BorderLayout.WEST);   //webcam Bild nach links
 
         // Create a panel to hold the buttons
-        JPanel buttonPanel = new JPanel(new GridLayout(9, 1));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 9));
 
-        // Create four buttons
+        // Create buttons
         JButton button1 = new JButton("red");
         JButton button2 = new JButton("grayscale");
         JButton button3 = new JButton("Invert");
@@ -47,6 +48,17 @@ public class BiVaProject {
         JButton button7 = new JButton("sketch");
         JButton button8 = new JButton("blur");
         JButton button9 = new JButton("removeBackground");
+
+        //set Size buttons
+        button1.setSize(50, 50);
+        button2.setSize(50, 50);
+        button3.setSize(50, 50);
+        button4.setSize(50, 50);
+        button5.setSize(50, 50);
+        button6.setSize(50, 50);
+        button7.setSize(50, 50);
+        button8.setSize(50, 50);
+        button9.setSize(200, 50);
         // Add the buttons to the button panel
         buttonPanel.add(button1);
         buttonPanel.add(button2);
@@ -58,8 +70,8 @@ public class BiVaProject {
         buttonPanel.add(button8);
         buttonPanel.add(button9);
         // Add the button panel to the main panel
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
-        mainPanel.add(transformedPanel, BorderLayout.EAST);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);    //Buttons in die mitte
+        mainPanel.add(transformedPanel, BorderLayout.EAST); //bearbeitetes Bild nach rechts
 
         // Create a frame to hold the main panel
         JFrame frame = new JFrame("Webcam Viewer");
@@ -169,7 +181,6 @@ public class BiVaProject {
                     break;
                 case 4:
                     eightBitColor(pixels);
-
                     break;
                 case 5:
                     pixeled(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
@@ -188,7 +199,7 @@ public class BiVaProject {
                     blur(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
                     break;
                 case 9:
-                    removeBackground(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
+                    removeBackground2(pixels, image, webcam.getViewSize().width, webcam.getViewSize().height);
                     break;
 
                 default:
@@ -341,13 +352,180 @@ public class BiVaProject {
                         }
                     }
                 }
-
                 if (!((x + (y * width)) >= startPixel && (x + (y * width)) < endPixel)) {
                     currentColor = Color.white;
                 }
                 int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
                         | (currentColor.getGreen() << 8) | currentColor.getBlue();
                 pixels[x + (y * width)] = newIntColor;
+            }
+        }
+
+    }
+
+    public static void removeBackground2(int[] pixels, BufferedImage img, int width, int height) {
+        int tolerance = 15;
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                Color currentColor;
+                Color lastColor = Method.getPixelColor(img, x - 1, y);
+                Color futureColor = Method.getPixelColor(img, x + 1, y);
+                Color lastColor2 = Method.getPixelColor(img, x, y - 1);
+                Color futureColor2 = Method.getPixelColor(img, x, y + 1);
+
+                if (Math.abs(Method.asGray(lastColor) - Method.asGray(futureColor)) > tolerance || Math.abs(Method.asGray(lastColor2) - Method.asGray(futureColor2)) > tolerance || Math.abs(Method.asGray(lastColor) - Method.asGray(futureColor2)) > tolerance || Math.abs(Method.asGray(lastColor2) - Method.asGray(futureColor)) > tolerance) {
+//                if (Math.abs(Method.asGray(lastColor) - Method.asGray(futureColor)) > tolerance || Math.abs(Method.asGray(lastColor2) - Method.asGray(futureColor2)) > tolerance) {
+                    // currentColor = new Color((lastColor.getRed() + futureColor.getRed()) / 2,
+                    // (lastColor.getGreen() + futureColor.getGreen()) / 2, (lastColor.getBlue() +
+                    // futureColor.getBlue()) / 2);
+                    currentColor = Color.black;
+                } else {
+                    currentColor = Color.white;
+                }
+
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                pixels[x + (y * width)] = newIntColor;
+            }
+
+        }
+        Color[][] focus = new Color[3][3];
+        Color currentColor;
+        final int minPixel = 4;
+        int[] startPoints = new int[height];
+        int[] endPoints = new int[height];
+
+        for (int y = 1; y < height - 1; y += 2) {
+            for (int x = 1; x < width - 1; x++) {
+                if (x == 1) {
+                    for (int i = 1; i < width - 1; i++) {
+                        focus[0][0] = new Color(pixels[i - 1 + ((y - 1) * width)]);
+                        focus[0][1] = new Color(pixels[i + ((y - 1) * width)]);
+                        focus[0][2] = new Color(pixels[i + 1 + ((y - 1) * width)]);
+                        focus[1][0] = new Color(pixels[i - 1 + (y * width)]);
+                        focus[1][1] = new Color(pixels[i + (y * width)]);
+                        focus[1][2] = new Color(pixels[i + 1 + (y * width)]);
+                        focus[2][0] = new Color(pixels[i - 1 + ((y + 1) * width)]);
+                        focus[2][1] = new Color(pixels[i + ((y + 1) * width)]);
+                        focus[2][2] = new Color(pixels[i + 1 + ((y + 1) * width)]);
+                        int blackCountStart = 0;
+                        for (int b = 0; b < 3; b++) {
+                            for (int a = 0; a < 3; a++) {
+                                if (focus[a][b].getRed() == 0 && focus[a][b].getGreen() == 0 && focus[a][b].getBlue() == 0) {
+                                    if (focus[0][0] != focus[2][2]) {
+                                        if (focus[2][0] != focus[0][2]) {
+                                            blackCountStart++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+//                        System.out.println(blackCountStart);
+                        if (blackCountStart > minPixel) {
+                            startPoints[y - 1] = (i + ((y - 1) * width));
+                            startPoints[y] = (i + (y * width));
+                            startPoints[y + 1] = (i + ((y + 1) * width));
+
+                            break;
+                        } else if (i == width - 1) {
+//                            startPoints[y - 1] = width;
+//                            startPoints[y] = width;
+//                            startPoints[y + 1] = width;
+                            startPoints[y - 1] = 0;
+                            startPoints[y] = 0;
+                            startPoints[y + 1] = 0;
+                        }
+                    }
+                    for (int i = width - 2; i > 1; i--) {
+                        focus[0][0] = new Color(pixels[i - 1 + ((y - 1) * width)]);
+                        focus[0][1] = new Color(pixels[i + ((y - 1) * width)]);
+                        focus[0][2] = new Color(pixels[i + 1 + ((y - 1) * width)]);
+                        focus[1][0] = new Color(pixels[i - 1 + (y * width)]);
+                        focus[1][1] = new Color(pixels[i + (y * width)]);
+                        focus[1][2] = new Color(pixels[i + 1 + (y * width)]);
+                        focus[2][0] = new Color(pixels[i - 1 + ((y + 1) * width)]);
+                        focus[2][1] = new Color(pixels[i + ((y + 1) * width)]);
+                        focus[2][2] = new Color(pixels[i + 1 + ((y + 1) * width)]);
+                        int blackCountEnd = 0;
+                        for (int b = 0; b < 3; b++) {
+                            for (int a = 0; a < 3; a++) {
+                                if (focus[a][b].getRed() == 0 && focus[a][b].getGreen() == 0 && focus[a][b].getBlue() == 0) {
+                                    if (focus[0][0] != focus[2][2]) {
+                                        if (focus[2][0] != focus[0][2]) {
+                                            blackCountEnd++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+//                        for (int b = 0; b < 2; b++) {
+//                            if (focus[b][0].getRed() == 0 && focus[b][0].getGreen() == 0 && focus[b][0].getBlue() == 0) {
+//                                if (focus[b][1].getRed() == 0 && focus[b][1].getGreen() == 0 && focus[b][1].getBlue() == 0) {
+//                                    if (focus[b][2].getRed() == 0 && focus[b][2].getGreen() == 0 && focus[b][2].getBlue() == 0) {
+//                                        if (focus[b+1][0].getRed() == 0 && focus[b+1][0].getGreen() == 0 && focus[b+1][0].getBlue() == 0) {
+//                                            if (focus[b+1][1].getRed() == 0 && focus[b+1][1].getGreen() == 0 && focus[b+1][1].getBlue() == 0) {
+//                                                if (focus[b+1][2].getRed() == 0 && focus[b+1][2].getGreen() == 0 && focus[b+1][2].getBlue() == 0) {
+//                                                    blackCountEnd++;
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        for (int b = 0; b < 2; b++) {
+//                            if (focus[0][b].getRed() == 0 && focus[0][b].getGreen() == 0 && focus[0][b].getBlue() == 0) {
+//                                if (focus[1][b].getRed() == 0 && focus[1][b].getGreen() == 0 && focus[1][b].getBlue() == 0) {
+//                                    if (focus[2][b].getRed() == 0 && focus[2][b].getGreen() == 0 && focus[2][b].getBlue() == 0) {
+//                                        if (focus[0][b+1].getRed() == 0 && focus[0][b+1].getGreen() == 0 && focus[0][b+1].getBlue() == 0) {
+//                                            if (focus[1][b+1].getRed() == 0 && focus[1][b+1].getGreen() == 0 && focus[1][b+1].getBlue() == 0) {
+//                                                if (focus[2][b+1].getRed() == 0 && focus[2][b+1].getGreen() == 0 && focus[2][b+1].getBlue() == 0) {
+//                                                    blackCountEnd++;
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+                        if (blackCountEnd > minPixel) {
+                            endPoints[y - 1] = (i + ((y - 1) * width));
+                            endPoints[y] = (i + (y * width));
+                            endPoints[y + 1] = (i + ((y + 1) * width));
+                            break;
+                        } else if (i == 1) {
+//                            endPoints[y - 1] = 0;
+//                            endPoints[y] = 0;
+//                            endPoints[y + 1] = 0;
+                            endPoints[y - 1] = width - 1;
+                            endPoints[y] = width - 1;
+                            endPoints[y + 1] = width - 1;
+
+                        }
+                    }
+                }
+
+            }
+//            System.out.println(blackCount);
+//            System.out.println(startPoints[y]);
+//            System.out.println(endPoints[y]);
+
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+//                System.out.println(((x + ((y) * width)) + ">=" + startPoints[y]));
+                if (!((x + ((y) * width)) >= startPoints[y] && ((x + ((y) * width)) < endPoints[y]))) {
+                    currentColor = Color.white;
+
+                }else{
+                    currentColor=Method.getPixelColor(img, x, y);
+                }
+                int newIntColor = (currentColor.getAlpha() << 24) | (currentColor.getRed() << 16)
+                        | (currentColor.getGreen() << 8) | currentColor.getBlue();
+                pixels[x + ((y) * width)] = newIntColor;
+
             }
         }
 
